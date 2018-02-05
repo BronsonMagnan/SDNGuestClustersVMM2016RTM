@@ -7,11 +7,12 @@ This script has to be run on a management console that has both:
 1. The VMM console installed
 2. The Network controller certificate installed
 
-Note: VMM will write a warning when it live migrates a VM in this cluster because it is detecting the floating IP that it does not know about, the floating ip will continue to work though.
-The VIP address needs to be available in the "load balancer address" space of this tenant subnet's IP pool, and not currently in use.
-SQL Browser service does not work in SDN.
-Client connections and access from sql server management studio need to be "InstanceName,Port" where instance name is resolvable in dns.
-Failover cluster manager access can work if the active node is on the same host as the management console.
+Notes:
+* VMM will write a warning when it live migrates a VM in this cluster because it is detecting the floating IP that it does not know about, the floating ip will continue to work though.
+* The VIP address needs to be available in the "load balancer address" space of this tenant subnet's IP pool, and not currently in use.
+* SQL Browser service does not work in SDN.
+* Client connections and access from sql server management studio need to be "InstanceName,Port" where instance name is resolvable in dns.
+* Failover cluster manager access can work if the active node is on the same host as the management console. I have not figured out if how to do this yet as the floating ip address load balancer seems to only be able to forward a single port.
 
 References: https://docs.microsoft.com/en-us/windows-server/networking/sdn/manage/guest-clustering
 
