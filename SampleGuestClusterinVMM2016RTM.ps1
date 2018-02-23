@@ -106,8 +106,7 @@ $nic = $ncnetworkcontrollernetworkinterface
 $nic.properties.IpConfigurations[0].properties.LoadBalancerBackendAddressPools += $lb.properties.backendaddresspools[0]
 $nic = new-networkcontrollernetworkinterface  -connectionuri $uri -resourceid $nic.resourceid -properties $nic.properties -force
 
-exit
 #this code will remove the VIP. Use this after VMM 1801 is released and you want to remove this VIP to redeploy in VMM.
 #Load the $resourceID varible from the top
-$lb = Get-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $ResourceId
-Remove-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $lb.ResourceId
+#$lb = Get-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $ResourceId
+#Remove-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $lb.ResourceId
