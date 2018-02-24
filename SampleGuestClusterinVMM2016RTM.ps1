@@ -29,8 +29,6 @@ $VIPPort = "10433"
 $ProbePort = "59998" 
 
 #THIS SCRIPT GOES BEHIND VMM 2016 RTM TO CREATE A FLOATING IP FOR A GUEST CLUSTER.
-import-module virtualmachinemanager
-#Step 1: Translate the Network and Subnet artifacts from VMM into Network Controller Resources.
 $scvmNetwork = Get-SCVMNetwork -name $VMMNetworkName
 $ncvmNetwork = Get-NetworkControllerVirtualNetwork -ConnectionUri $uri -ResourceId ( $scvmNetwork.ExternalId)
 $scvmSubnet = Get-SCVMSubnet -Name $VMMSubnetName -VMNetwork $scvmNetwork
@@ -83,11 +81,11 @@ $lbrule.properties.Probe = $lbprobe
 
 
 
-#Step 5: Create the load balancer in Network Controller
+#Step 6: Create the load balancer in Network Controller
 $lb = New-NetworkControllerLoadBalancer -ConnectionUri $URI -ResourceId $ResourceId -Properties $LoadBalancerProperties -Force
 #$error[0].Exception.InnerException
 
-#Step 6: Add the cluster nodes to the backend pool
+#Step 7: Add the cluster nodes to the backend pool
 # Cluster Node 1
 $vm = Get-SCVirtualMachine -Name $node1
 $scvirtualnetworkadapter = Get-SCVirtualNetworkAdapter -VM $vm
@@ -106,7 +104,21 @@ $nic = $ncnetworkcontrollernetworkinterface
 $nic.properties.IpConfigurations[0].properties.LoadBalancerBackendAddressPools += $lb.properties.backendaddresspools[0]
 $nic = new-networkcontrollernetworkinterface  -connectionuri $uri -resourceid $nic.resourceid -properties $nic.properties -force
 
-#this code will remove the VIP. Use this after VMM 1801 is released and you want to remove this VIP to redeploy in VMM.
-#Load the $resourceID varible from the top
-#$lb = Get-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $ResourceId
-#Remove-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $lb.ResourceId
+exit
+#this is the removal code
+$vm = Get-SCVirtualMachine -Name $node1
+$scvirtualnetworkadapter = Get-SCVirtualNetworkAdapter -VM $vm
+$ncnetworkcontrollernetworkinterface = Get-NetworkControllerNetworkInterface -ConnectionUri $uri -ResourceId ($scvirtualnetworkadapter.id)
+$nic = $ncnetworkcontrollernetworkinterface
+$nic.properties.IpConfigurations[0].properties.LoadBalancerBackendAddressPools = $null
+$nic = new-networkcontrollernetworkinterface  -connectionuri $uri -resourceid $nic.resourceid -properties $nic.properties -force
+
+$vm = Get-SCVirtualMachine -Name $node2
+$scvirtualnetworkadapter = Get-SCVirtualNetworkAdapter -VM $vm
+$ncnetworkcontrollernetworkinterface = Get-NetworkControllerNetworkInterface -ConnectionUri $uri -ResourceId ($scvirtualnetworkadapter.id)
+$nic = $ncnetworkcontrollernetworkinterface
+$nic.properties.IpConfigurations[0].properties.LoadBalancerBackendAddressPools = $null
+$nic = new-networkcontrollernetworkinterface  -connectionuri $uri -resourceid $nic.resourceid -properties $nic.properties -force
+
+$lb = Get-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $ResourceId
+Remove-NetworkControllerLoadBalancer -ConnectionUri $uri -ResourceId $lb.ResourceId
